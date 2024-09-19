@@ -32,6 +32,5 @@
     }
   },
   "preview-port": 7456,
-  "clear-simulator-cache": true,
-  "start-scene": "current"
+  "clear-simulator-cache": true
 }
