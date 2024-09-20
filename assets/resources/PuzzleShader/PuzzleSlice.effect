@@ -13,14 +13,10 @@ CCEffect %{
       properties:
         texture: { value: white }
 
-        c_uv0: { value: [0, 0] }
-        c_uv1: { value: [0.333, 0.333] }
-        c_corner_type: { value: 0 }
-
-        c_shape_type0: { value: 0 }
-        c_shape_type1: { value: 0 }
-        c_shape_type2: { value: 0 }
-        c_shape_type3: { value: 0 }
+        c_shape_type: { value: [0, 0, 0, 0] }
+        c_uv0: { value: [0.333, 0.333] }
+        c_uv1: { value: [0.666, 0.666] }
+        c_corner_type: { value: 3 }
 }%
 
 
@@ -59,14 +55,10 @@ CCProgram fs %{
   uniform sampler2D texture;
 
   uniform Custom {
+    vec4 c_shape_type;
     vec2 c_uv0;
     vec2 c_uv1;
     float c_corner_type;
-
-    float c_shape_type0;
-    float c_shape_type1;
-    float c_shape_type2;
-    float c_shape_type3;
   };  
 
   // 圆角
@@ -114,8 +106,8 @@ CCProgram fs %{
     float type1 = step(shape, 1. + 0.1) * step(1. - 0.1, shape);
     float type2 = step(shape, 2. + 0.1) * step(2. - 0.1, shape);
     
-    float r1 = type1 * smoothstep(radius, radius - 0.001, length(v_uv0 - pos));
-    float r2 = type2 * smoothstep(radius, radius + 0.001, length(v_uv0 - pos));
+    float r1 = type1 * smoothstep(radius, radius - 0.005, length(v_uv0 - pos));
+    float r2 = type2 * smoothstep(radius, radius + 0.005, length(v_uv0 - pos));
 
     o.a += mix(0., r1, type1);;
     o.a *= mix(1., r2, type2);
@@ -127,15 +119,15 @@ CCProgram fs %{
   vec4 shape(vec4 o, float r) {
     float radius = r / 528.;
 
-    vec2 pos0 = vec2(c_uv0.x + 0.333/2., c_uv0.y);
-    vec2 pos1 = vec2(c_uv1.x, c_uv0.y + 0.333/2.);
-    vec2 pos2 = vec2(c_uv0.x + 0.333/2., c_uv1.y);
-    vec2 pos3 = vec2(c_uv0.x, c_uv0.y + 0.333/2.);
+    vec2 pos0 = vec2(c_uv0.x + 0.334/2., c_uv0.y);
+    vec2 pos1 = vec2(c_uv1.x, c_uv0.y + 0.334/2.);
+    vec2 pos2 = vec2(c_uv0.x + 0.334/2., c_uv1.y);
+    vec2 pos3 = vec2(c_uv0.x, c_uv0.y + 0.334/2.);
 
-    o = _shape(o, pos0, c_shape_type0, radius);
-    o = _shape(o, pos1, c_shape_type1, radius);
-    o = _shape(o, pos2, c_shape_type2, radius);
-    o = _shape(o, pos3, c_shape_type3, radius);
+    o = _shape(o, pos0, c_shape_type.x, radius);
+    o = _shape(o, pos1, c_shape_type.y, radius);
+    o = _shape(o, pos2, c_shape_type.z, radius);
+    o = _shape(o, pos3, c_shape_type.w, radius);
 
     return o;
   }
@@ -148,7 +140,7 @@ CCProgram fs %{
     o.a *= corner(13.);
 
     // 凹凸
-    o = shape(o, 28.);
+    o = shape(o, 27.5);
 
     o *= v_color;
 

@@ -9,10 +9,7 @@
   "_techniqueIndex": 0,
   "_techniqueData": {
     "0": {
-      "defines": {},
-      "props": {
-        "c_corner_type": 1
-      }
+      "defines": {}
     }
   }
 }
