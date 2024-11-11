@@ -2,6 +2,7 @@ const { ccclass, property, executeInEditMode } = cc._decorator;
 @ccclass
 @executeInEditMode
 export default class MeshCustom extends cc.Component {
+    @property(cc.PolygonCollider) polygon: cc.PolygonCollider = null;
     @property(cc.Boolean) dirty: boolean = false;
 
     //================================================ cc.Component
@@ -9,19 +10,40 @@ export default class MeshCustom extends cc.Component {
         this.sync();
     }
 
-    private _x: number[] = [0, 563, 0, 563];
-    private _y: number[] = [387, 387, 0, 0];
-
     private _pSrc: cc.Vec2 = cc.v2(0, 0);
     private _pDst: cc.Vec2 = cc.v2(563, 387);
     private _duration: number = 1;
 
     private _time: number = null;
     protected update(dt: number): void {
+        if (this.polygon) {
+            let points = this.polygon.points;
+            let w = this.node.width;
+            let h = this.node.height;
+
+            this._x = [
+                points[0].x,
+                points[1].x,
+                points[3].x,
+                points[2].x,
+            ];
+            this._y = [
+                h - points[0].y,
+                h - points[1].y,
+                h - points[3].y,
+                h - points[2].y,
+            ];
+
+            this.sync();
+            return;
+        }
+
         if (this.dirty) {
             this.dirty = false;
 
             this._time = 0;
+            this._x = [0, 563, 0, 563];
+            this._y = [387, 387, 0, 0];
         }
 
         if (this._time != null) {
@@ -43,6 +65,8 @@ export default class MeshCustom extends cc.Component {
     }
 
     //================================================ private
+    private _x: number[] = [0, 563, 0, 563];
+    private _y: number[] = [387, 387, 0, 0];
     private sync() {
         let sprite = this.getComponent(cc.Sprite);
         sprite.spriteFrame.vertices = {
