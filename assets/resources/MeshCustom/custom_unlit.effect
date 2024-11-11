@@ -1,0 +1,53 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: vs
+      frag: fs
+      blendState:
+        targets:
+        - blend: true
+      rasterizerState:
+        cullMode: none
+      properties:
+        texture: { value: white }
+}%
+
+
+CCProgram vs %{
+  precision highp float;
+
+  #include <cc-global>
+  #include <cc-local>
+
+  in vec2 a_position;
+  in vec2 a_uv0;
+  out vec2 v_uv0;
+
+  void main () {
+    vec4 pos = vec4(a_position, 1, 1);
+
+    v_uv0 = a_uv0;
+
+    gl_Position = cc_matViewProj * pos;
+  }
+}%
+
+
+CCProgram fs %{
+  precision highp float;
+
+  #include <texture>
+
+  in vec2 v_uv0;
+  uniform sampler2D texture;
+
+  void main () {
+    vec4 o = vec4(1, 1, 1, 1);
+
+    CCTexture(texture, v_uv0, o);
+
+    gl_FragColor = o.rgba;
+  }
+}%
