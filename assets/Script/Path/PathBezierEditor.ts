@@ -1,5 +1,7 @@
 import PathUtils from "./PathUtils";
 
+let STEP = 0.0001;
+//================================================ 
 const {ccclass, property, menu, executeInEditMode} = cc._decorator;
 
 @ccclass
@@ -13,6 +15,10 @@ export default class RouteEditorCurveBezier extends cc.Component {
     @property(cc.Integer) splitCount: number = 20;
     @property(cc.Boolean) showSplitSegments: boolean = false;
 
+    @property(cc.Graphics) graphicsBorder: cc.Graphics = null;
+    @property(cc.Float) borderWidth: number = 10;
+    @property(cc.Sprite) spBorder: cc.Sprite = null;
+
     _dis: number = 0;
 
     //================================================ cc.Component
@@ -25,6 +31,7 @@ export default class RouteEditorCurveBezier extends cc.Component {
         this.viewCurve(this.collider);
         this.viewPos();
         this.viewDistance(this.splitCount);
+        this.viewBorder();
     }
 
     //================================================ 
@@ -63,12 +70,82 @@ export default class RouteEditorCurveBezier extends cc.Component {
     }
 
     private viewPos() {
-        let points = this.getPoints();
         let distance = this.getDistance();
         let percent = (this._dis % distance) / distance;
 
         if (this.nodeGhost) {
-            this.nodeGhost.setPosition(PathUtils.lerpBezierPos(points, percent));
+            this.nodeGhost.setPosition(PathUtils.lerpBezierPos(this.getPoints(), percent));
+        }
+    }
+
+    private viewBorder() {
+        if (!this.graphicsBorder) {
+            return;
+        }
+
+        let points = [];
+        let advance = 1 / this.splitCount;
+        let p0 = null;
+        for(let i = 0; i <= this.splitCount; i++) {
+            let p1 = PathUtils.lerpBezierPos(this.getPoints(), i * advance);
+            if (p0) {
+                let dir = p1.sub(p0).normalizeSelf();
+                let pv0 = cc.v2(-dir.y, dir.x).multiplyScalar(this.borderWidth);
+                let pv1 = cc.v2(dir.y, -dir.x).multiplyScalar(this.borderWidth);
+                points.push(pv0.add(p0));
+                points.push(pv1.add(p0));
+            }
+            p0 = p1;
+        }
+
+        this.graphicsBorder.clear();
+        points.forEach((ele, index) => {
+            if (index == 0) {
+                this.graphicsBorder.moveTo(ele.x, ele.y);
+            } else {
+                this.graphicsBorder.lineTo(ele.x, ele.y);
+            }
+        });
+        this.graphicsBorder.stroke();
+
+        if (this.spBorder) {
+            let tw = 128;
+            let th = 128;
+            let ow = 2;
+            let oh = 20;
+
+            let pBase = cc.v2(tw/2, tw/2);
+            let x = [];
+            let y = [];
+            let nu = [];
+            let nv = [];
+            let triangles = [];
+            let _nu = [0, 0, 1, 1];
+            let _nv = [0, 1, 0, 1];
+            let _triangles = [0, 1, 2, 2, 1, 3];
+            points.forEach((ele, index) => {
+                // if (index < 8) {
+                    let index4 = index % 4;
+                    x.push(pBase.x + ele.x / ow * tw);
+                    y.push(pBase.y - ele.y / oh * th);
+                    
+                    nu.push(_nu[index4]);
+                    nv.push(_nv[index4]);
+                    if (index4 == 3) {
+                        triangles = triangles.concat(_triangles.map(ele => ele + index - 3));
+                    }
+                // }
+            });
+            // cc.log('points[0]', points[0].x, points[0].y, pBase.y - points[0].y / oh * th);
+            // cc.log('points[1]', points[1].x, points[1].y, pBase.y - points[1].y / oh * th);
+            this.spBorder.spriteFrame.vertices = {
+                x: x, // 左上 左下 右上 右下
+                y: y,
+                nu: nu,
+                nv: nv,
+                triangles: triangles,
+            };
+            this.spBorder.setVertsDirty();
         }
     }
 
