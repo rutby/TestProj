@@ -1,0 +1,17 @@
+{
+  "__type__": "cc.Material",
+  "_name": "River",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "bf0d0b65-c51a-427a-8569-74d6d0d252de"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}
