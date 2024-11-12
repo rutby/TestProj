@@ -83,10 +83,12 @@ export default class RouteEditorCurveBezier extends cc.Component {
             return;
         }
 
+        let percents = [];
         let points = [];
         let advance = 1 / this.splitCount;
         let p0 = null;
         for(let i = 0; i <= this.splitCount; i++) {
+            let percent = i * advance;
             let p1 = PathUtils.lerpBezierPos(this.getPoints(), i * advance);
             if (p0) {
                 let dir = p1.sub(p0).normalizeSelf();
@@ -94,6 +96,9 @@ export default class RouteEditorCurveBezier extends cc.Component {
                 let pv1 = cc.v2(dir.y, -dir.x).multiplyScalar(this.borderWidth);
                 points.push(pv0.add(p0));
                 points.push(pv1.add(p0));
+
+                percents.push(percent);
+                percents.push(percent);
             }
             p0 = p1;
         }
@@ -109,8 +114,8 @@ export default class RouteEditorCurveBezier extends cc.Component {
         this.graphicsBorder.stroke();
 
         if (this.spBorder) {
-            let tw = 128;
-            let th = 128;
+            let tw = this.spBorder.spriteFrame.getTexture().width;
+            let th = this.spBorder.spriteFrame.getTexture().height;
             let ow = 2;
             let oh = 20;
 
@@ -120,24 +125,34 @@ export default class RouteEditorCurveBezier extends cc.Component {
             let nu = [];
             let nv = [];
             let triangles = [];
-            let _nu = [0, 0, 1, 1];
+
+            let _x = [];
+            let _y = [];
+            // let _nu = [0, 0, 1, 1];
             let _nv = [0, 1, 0, 1];
+            let _nu = [];
             let _triangles = [0, 1, 2, 2, 1, 3];
             points.forEach((ele, index) => {
                 // if (index < 8) {
                     let index4 = index % 4;
-                    x.push(pBase.x + ele.x / ow * tw);
-                    y.push(pBase.y - ele.y / oh * th);
-                    
-                    nu.push(_nu[index4]);
-                    nv.push(_nv[index4]);
-                    if (index4 == 3) {
+
+                    _x.push(pBase.x + ele.x / ow * tw);
+                    _y.push(pBase.y - ele.y / oh * th);
+                    _nu.push(percents[index]);
+
+                    if (index > 2 && (index4 == 1 || index4 == 3)) {
+                        x = x.concat(_x);
+                        y = y.concat(_y);
+                        nu = nu.concat(_nu);
+                        nv = nv.concat(_nv);
                         triangles = triangles.concat(_triangles.map(ele => ele + index - 3));
+
+                        _x.length = 0;
+                        _y.length = 0;
+                        _nu.length = 0;
                     }
                 // }
             });
-            // cc.log('points[0]', points[0].x, points[0].y, pBase.y - points[0].y / oh * th);
-            // cc.log('points[1]', points[1].x, points[1].y, pBase.y - points[1].y / oh * th);
             this.spBorder.spriteFrame.vertices = {
                 x: x, // 左上 左下 右上 右下
                 y: y,

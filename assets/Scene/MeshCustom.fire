@@ -1233,8 +1233,8 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        22.946477154062265,
-        98.02693781379662,
+        53.6424572070195,
+        86.22363965329768,
         0,
         0,
         0,
@@ -1292,7 +1292,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "grass",
+    "_name": "path",
     "_objFlags": 0,
     "_parent": {
       "__id__": 17
@@ -1305,7 +1305,7 @@
       }
     ],
     "_prefab": null,
-    "_opacity": 197,
+    "_opacity": 255,
     "_color": {
       "__type__": "cc.Color",
       "r": 255,
@@ -1368,7 +1368,7 @@
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
     "_spriteFrame": {
-      "__uuid__": "2713c264-3a80-48fe-b9bf-6e5c532a1333"
+      "__uuid__": "596761a2-5feb-4423-8520-3e2a730ff3a6"
     },
     "_type": 4,
     "_sizeMode": 0,
